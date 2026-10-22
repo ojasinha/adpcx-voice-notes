@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, File, UploadFile
+from fastapi import APIRouter, File, UploadFile, WebSocket
 
 from app.api.deps import (
     IntentExtractorDep,
@@ -15,6 +15,7 @@ from app.errors import AudioProcessingError, InvalidRequestError, PayloadTooLarg
 from app.schemas.notes import NoteProcessResponse
 from app.services.audio import transcribe_audio_bytes
 from app.services.pipeline import NotePipeline
+from app.services.streaming import VoiceStreamSession
 
 router = APIRouter(prefix="/api/voice", tags=["voice"])
 
@@ -48,3 +49,15 @@ def transcribe(
 
     pipeline = NotePipeline(session, extractor)
     return pipeline.process(text, Source.VOICE)
+
+
+@router.websocket("/stream")
+async def stream_voice(websocket: WebSocket) -> None:
+    app = websocket.app
+    await VoiceStreamSession(
+        websocket=websocket,
+        settings=app.state.settings,
+        transcriber=app.state.transcriber,
+        extractor=app.state.intent_extractor,
+        session_factory=app.state.session_factory,
+    ).run()

@@ -5,14 +5,23 @@ from datetime import UTC, date, datetime
 import pytest
 from pydantic import ValidationError
 
+from app.config import Settings
 from app.domain import Intent, Priority, TaskStatus
-from app.errors import IntentExtractionError
+from app.errors import IntentExtractionError, LLMUnavailableError
 from app.schemas.intents import LLMIntent
 from app.services.intent import (
     OpenAICompatibleIntentExtractor,
     build_system_prompt,
     extract_json_object,
 )
+from app.services.llm import OpenAICompatibleClient
+
+
+def test_llm_client_requires_explicit_configuration():
+    client = OpenAICompatibleClient(Settings(llm_base_url="", llm_model="", llm_api_key=""))
+
+    with pytest.raises(LLMUnavailableError, match="not configured"):
+        client.complete_json([{"role": "user", "content": "hello"}])
 
 
 def test_extract_json_object_handles_plain_and_fenced_json():

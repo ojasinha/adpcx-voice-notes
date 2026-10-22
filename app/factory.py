@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.api import health, notes, tasks, voice
 from app.config import Settings, get_settings
@@ -22,6 +24,12 @@ logger = logging.getLogger(__name__)
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
     logging.basicConfig(level=settings.log_level.upper())
+    logger.info(
+        "Starting %s v%s (%s)",
+        settings.app_name,
+        settings.app_version,
+        settings.environment,
+    )
 
     engine = create_db_engine(settings.database_url)
     init_db(engine)
@@ -48,6 +56,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(notes.router)
     app.include_router(tasks.router)
     app.include_router(voice.router)
+
+    static_dir = Path(__file__).resolve().parent / "static"
+    app.mount("/", StaticFiles(directory=static_dir, html=True), name="frontend")
 
     @app.exception_handler(AppError)
     async def handle_app_error(_request: Request, exc: AppError) -> JSONResponse:

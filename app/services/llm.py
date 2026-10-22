@@ -30,18 +30,26 @@ class OpenAICompatibleClient:
         self.max_tokens = settings.llm_max_tokens
 
     def complete_json(self, messages: Sequence[ChatMessage]) -> str:
+        if not self.base_url or not self.model:
+            raise LLMUnavailableError(
+                "LLM is not configured. Set LLM_BASE_URL and LLM_MODEL in .env."
+            )
+
         payload = {
             "model": self.model,
             "messages": list(messages),
             "temperature": self.temperature,
             "max_tokens": self.max_tokens,
         }
+        headers = {}
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
 
         try:
             with httpx.Client(timeout=self.timeout) as client:
                 response = client.post(
                     f"{self.base_url}/chat/completions",
-                    headers={"Authorization": f"Bearer {self.api_key}"},
+                    headers=headers,
                     json=payload,
                 )
         except httpx.HTTPError as exc:

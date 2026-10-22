@@ -10,7 +10,7 @@ from app.errors import AppError, IntentExtractionError, LLMUnavailableError
 from app.models import Note, utcnow
 from app.repositories import NoteRepository, TaskRepository
 from app.schemas.intents import LLMIntent
-from app.schemas.notes import ActionOut, NoteOut, NoteProcessResponse
+from app.schemas.notes import ActionOut, NoteProcessResponse, ProcessedNoteOut
 from app.schemas.tasks import TaskOut
 from app.services.intent import IntentExtractor
 from app.services.tasks import resolve_task
@@ -51,7 +51,7 @@ class NotePipeline:
             raise
 
         return NoteProcessResponse(
-            note=NoteOut.model_validate(note),
+            note=ProcessedNoteOut.model_validate(note),
             intent=extracted.intent,
             action=action,
         )
@@ -63,7 +63,7 @@ class NotePipeline:
 
     @staticmethod
     def _note_payload(note: Note) -> dict[str, Any]:
-        return NoteOut.model_validate(note).model_dump(mode="json")
+        return ProcessedNoteOut.model_validate(note).model_dump(mode="json")
 
     def _execute(self, note: Note, extracted: LLMIntent) -> ActionOut:
         if extracted.intent == Intent.CREATE_TASK:

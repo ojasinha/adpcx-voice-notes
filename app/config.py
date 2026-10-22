@@ -14,17 +14,18 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./data/app.db"
 
     max_audio_mb: int = 25
+    max_stream_seconds: int = 120
     ffmpeg_bin: str = "ffmpeg"
     ffmpeg_timeout_seconds: int = 60
-    whisper_model: str = "base"
+    whisper_model: str = "small.en"
     whisper_device: str = "cpu"
     whisper_compute_type: str = "int8"
     whisper_language: str = "en"
     whisper_beam_size: int = 5
 
-    llm_base_url: str = "http://127.0.0.1:8080/v1"
-    llm_api_key: str = "local"
-    llm_model: str = "qwen3.5-4b"
+    llm_base_url: str = ""
+    llm_api_key: str = ""
+    llm_model: str = ""
     llm_timeout_seconds: float = 60.0
     llm_temperature: float = 0.0
     llm_max_tokens: int = 512

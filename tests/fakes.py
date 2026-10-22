@@ -13,7 +13,7 @@ class FakeTranscriber:
         self.error: Exception | None = None
         self.calls: list[Path] = []
 
-    def transcribe(self, audio_path: Path) -> str:
+    def transcribe(self, audio_path: Path, *, beam_size: int | None = None) -> str:
         self.calls.append(audio_path)
         if self.error is not None:
             raise self.error

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Generic, TypeVar
+from typing import Generic, TypeVar
 
 from pydantic import BaseModel
 
@@ -12,16 +12,6 @@ class Page(BaseModel, Generic[T]):
     total: int
     limit: int
     offset: int
-
-
-class ErrorDetail(BaseModel):
-    code: str
-    message: str
-    details: Any | None = None
-
-
-class ErrorResponse(BaseModel):
-    error: ErrorDetail
 
 
 class HealthOut(BaseModel):

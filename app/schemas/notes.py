@@ -21,7 +21,7 @@ class NoteCreate(BaseModel):
         return value
 
 
-class NoteOut(BaseModel):
+class NoteBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: str
@@ -29,8 +29,15 @@ class NoteOut(BaseModel):
     created_at: datetime
     source: Source
     task_id: str | None = None
-    intent: Intent | None = None
     processing_error: str | None = None
+
+
+class NoteOut(NoteBase):
+    intent: Intent | None = None
+
+
+class ProcessedNoteOut(NoteBase):
+    pass
 
 
 class NoteDetailOut(NoteOut):
@@ -45,6 +52,6 @@ class ActionOut(BaseModel):
 
 
 class NoteProcessResponse(BaseModel):
-    note: NoteOut
+    note: ProcessedNoteOut
     intent: Intent
     action: ActionOut

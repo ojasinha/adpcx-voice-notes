@@ -36,9 +36,11 @@ def test_text_note_creates_task_and_links_note(client, fake_extractor):
     assert body["action"]["task"]["due_date"] == "2026-10-23"
     assert body["note"]["source"] == "text"
     assert body["note"]["task_id"] == body["action"]["task"]["id"]
+    assert "intent" not in body["note"]
 
     note = client.get(f"/api/notes/{body['note']['id']}").json()
     assert note["task"]["id"] == body["action"]["task"]["id"]
+    assert note["intent"] == "CREATE_TASK"
 
     task = client.get(f"/api/tasks/{body['action']['task']['id']}").json()
     assert task["title"] == "Review the PR"
@@ -86,6 +88,7 @@ def test_update_unknown_task_returns_404_and_preserves_note(client, fake_extract
     body = response.json()
     assert body["error"]["code"] == "not_found"
     assert body["note"]["processing_error"] == "No task matched 'missing task'"
+    assert "intent" not in body["note"]
 
     saved = client.get(f"/api/notes/{body['note']['id']}").json()
     assert saved["processing_error"] is not None

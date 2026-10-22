@@ -15,6 +15,8 @@ def settings(tmp_path) -> Settings:
         environment="test",
         database_url=f"sqlite:///{(tmp_path / 'test.db').as_posix()}",
         llm_base_url="http://127.0.0.1:9/v1",
+        llm_api_key="test-key",
+        llm_model="test-model",
         whisper_model="tiny",
         whisper_device="cpu",
     )
@@ -33,6 +35,8 @@ def fake_extractor() -> FakeIntentExtractor:
 @pytest.fixture
 def app(settings: Settings, fake_transcriber, fake_extractor):
     application = create_app(settings)
+    application.state.transcriber = fake_transcriber
+    application.state.intent_extractor = fake_extractor
     application.dependency_overrides[get_transcriber] = lambda: fake_transcriber
     application.dependency_overrides[get_intent_extractor] = lambda: fake_extractor
     yield application

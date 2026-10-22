@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f3ef">
+  <meta name="description" content="Voice-first notes and task management. Speak naturally and Voice Notes turns it into tasks, updates, and memories.">
+  <title>Voice Notes — Speak. Keep moving.</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Schibsted+Grotesk:wght@400..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#overview" data-view-link="overview" aria-label="Voice Notes overview">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none">
+            <path d="M7 18v-4M12 22V10M17 25V7M22 21V11M27 18v-4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="brand-copy">
+          <strong>Voice Notes</strong>
+        </span>
+      </a>
+
+      <button class="btn btn-primary btn-block" type="button" data-new-note>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M5.5 11.5v.5a6.5 6.5 0 0 0 13 0v-.5M12 18.5V21M8.5 21h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        New capture
+      </button>
+
+      <nav class="nav" aria-label="Primary">
+        <a class="nav-link is-active" href="#overview" data-view-link="overview">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="3.5" y="3.5" width="7" height="7" rx="2" stroke="currentColor" stroke-width="1.7"/>
+            <rect x="13.5" y="3.5" width="7" height="7" rx="2" stroke="currentColor" stroke-width="1.7"/>
+            <rect x="3.5" y="13.5" width="7" height="7" rx="2" stroke="currentColor" stroke-width="1.7"/>
+            <rect x="13.5" y="13.5" width="7" height="7" rx="2" stroke="currentColor" stroke-width="1.7"/>
+          </svg>
+          <span>Overview</span>
+        </a>
+        <a class="nav-link" href="#tasks" data-view-link="tasks">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="m4 7 2 2 4-4M4 17l2 2 4-4M13 8h7M13 18h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Tasks</span>
+          <span class="nav-badge" id="nav-task-count">0</span>
+        </a>
+        <a class="nav-link" href="#notes" data-view-link="notes">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 3.5h8l4 4V20a.5.5 0 0 1-.5.5h-11A.5.5 0 0 1 6 20V4a.5.5 0 0 1 .5-.5Z" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M14 3.5V8h4.5M9 12h6M9 15.5h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+          <span>Notes</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="/docs" target="_blank" rel="noreferrer">
+          API docs
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <a class="mobile-brand" href="#overview" data-view-link="overview" aria-label="Voice Notes overview">
+            <span class="brand-mark brand-mark-sm" aria-hidden="true">
+              <svg viewBox="0 0 32 32" fill="none">
+                <path d="M7 18v-4M12 22V10M17 25V7M22 21V11M27 18v-4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span>Voice Notes</span>
+          </a>
+          <div class="view-heading">
+            <p class="eyebrow" id="view-eyebrow">Workspace</p>
+            <h1 id="view-title">Overview</h1>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <span class="date-chip" id="today-label"></span>
+          <button class="icon-btn" id="refresh-btn" type="button" title="Refresh data" aria-label="Refresh data">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M20 11a8 8 0 1 0-2.2 5.5M20 5v6h-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="banner" id="offline-banner" role="alert" hidden>
+        <span class="banner-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 8v5M12 16.5v.1M10.3 3.8 2.4 18a1.6 1.6 0 0 0 1.4 2.4h16.4a1.6 1.6 0 0 0 1.4-2.4L13.7 3.8a1.9 1.9 0 0 0-3.4 0Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <div>
+          <strong>API offline.</strong> Start the backend and retry.
+          <code>uv run uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload</code>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="retry-connection" type="button">Retry</button>
+      </div>
+
+      <main class="content">
+        <section class="view" id="view-overview" data-view="overview">
+          <div class="top-grid">
+            <div class="hero">
+              <h2>Speak naturally.<br>Keep moving.</h2>
+              <p>Voice Notes turns speech into tasks, updates, and memories.</p>
+              <div class="example-row" aria-label="Example notes">
+                <button class="example-chip" type="button" data-example="Remind me to review the PR tomorrow">Remind me to review the PR tomorrow</button>
+                <button class="example-chip" type="button" data-example="Mark the deployment task complete">Mark the deployment task complete</button>
+                <button class="example-chip" type="button" data-example="What's due this week?">What's due this week?</button>
+              </div>
+            </div>
+
+            <section class="capture-card" aria-labelledby="capture-title">
+              <div class="capture-head">
+                <div>
+                  <p class="eyebrow">Quick capture</p>
+                  <h2 id="capture-title">What's on your mind?</h2>
+                </div>
+              </div>
+
+              <div class="record-zone">
+                <button class="mic-btn" id="record-btn" type="button" aria-label="Start recording">
+                  <span class="mic-icon" id="mic-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <path d="M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z" stroke="currentColor" stroke-width="1.8"/>
+                      <path d="M5.5 11.5v.5a6.5 6.5 0 0 0 13 0v-.5M12 18.5V21M8.5 21h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    </svg>
+                  </span>
+                  <span class="mic-stop" id="mic-stop" aria-hidden="true" hidden>
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <rect x="7" y="7" width="10" height="10" rx="2" fill="currentColor"/>
+                    </svg>
+                  </span>
+                  <span class="mic-ring" aria-hidden="true"></span>
+                </button>
+                <div class="record-copy">
+                  <p class="record-label" id="record-label">Tap to record</p>
+                  <p class="record-hint" id="record-hint">Speak a task, status update, or question.</p>
+                  <div class="record-meta">
+                    <span class="timer" id="record-timer" hidden>00:00</span>
+                    <span class="record-live" id="record-live" hidden><span class="live-dot"></span>Recording</span>
+                  </div>
+                  <div class="waveform" id="waveform" hidden aria-hidden="true">
+                    <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+                  </div>
+                </div>
+                <button class="btn btn-ghost btn-sm" id="cancel-record" type="button" hidden>Cancel</button>
+              </div>
+
+              <div class="live-transcript" id="live-transcript" hidden>
+                <div class="live-transcript-head">
+                  <span class="live-transcript-label"><span class="live-dot"></span>Live transcript</span>
+                  <span class="live-transcript-status" id="live-transcript-status">Connecting</span>
+                </div>
+                <p class="live-transcript-text is-empty" id="live-transcript-text" aria-live="polite">Waiting for speech…</p>
+              </div>
+
+              <div class="or-divider"><span>or type it</span></div>
+
+              <form class="text-capture" id="note-form">
+                <label class="sr-only" for="note-text">Note text</label>
+                <input id="note-text" name="text" type="text" maxlength="10000" autocomplete="off" placeholder="Send the summary tomorrow at 5pm" required>
+                <button class="btn btn-primary" type="submit" id="note-submit">Add note</button>
+              </form>
+
+              <div class="capture-foot">
+                <label class="file-label">
+                  <input type="file" id="audio-file" accept="audio/*" hidden>
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M12 15.5V4M8 8l4-4 4 4M5 14v4.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span>Upload audio</span>
+                </label>
+              </div>
+
+              <div class="processing" id="processing" role="status" aria-live="polite" hidden>
+                <span class="spinner" aria-hidden="true"></span>
+                <div class="processing-copy">
+                  <strong id="processing-title">Listening</strong>
+                  <span id="processing-sub">Transcribing and extracting intent</span>
+                </div>
+                <span class="processing-time" id="processing-elapsed">0s</span>
+              </div>
+            </section>
+          </div>
+
+          <section class="stats-grid" aria-label="Workspace stats">
+            <article class="stat-card">
+              <div class="stat-copy">
+                <span>Open tasks</span>
+                <strong id="stat-open">0</strong>
+                <small id="stat-open-sub">All clear</small>
+              </div>
+            </article>
+            <article class="stat-card">
+              <div class="stat-copy">
+                <span>Due &amp; overdue</span>
+                <strong id="stat-due">0</strong>
+                <small id="stat-due-sub">Nothing overdue</small>
+              </div>
+            </article>
+            <article class="stat-card">
+              <div class="stat-copy">
+                <span>Completed</span>
+                <strong id="stat-completed">0</strong>
+                <small id="stat-completed-sub">All time</small>
+              </div>
+            </article>
+            <article class="stat-card">
+              <div class="stat-copy">
+                <span>Notes captured</span>
+                <strong id="stat-notes">0</strong>
+                <small id="stat-notes-sub">Across every capture</small>
+              </div>
+            </article>
+          </section>
+
+          <div class="overview-grid">
+            <section class="panel focus-panel">
+              <header class="panel-head">
+                <div>
+                  <p class="eyebrow">Today</p>
+                  <h3>Focus</h3>
+                </div>
+                <a class="text-link" href="#tasks" data-view-link="tasks">
+                  View all
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </a>
+              </header>
+              <div class="focus-list" id="focus-list"></div>
+              <div class="empty-inline" id="focus-empty" hidden>
+                <span class="empty-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5v-9Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+                    <path d="m4.5 7.8 7.5 4.3 7.5-4.3M12 12.1V21" stroke="currentColor" stroke-width="1.6"/>
+                  </svg>
+                </span>
+                <div>
+                  <strong>Nothing pressing</strong>
+                  <span>Your focus list is clear.</span>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel recent-panel">
+              <header class="panel-head">
+                <div>
+                  <p class="eyebrow">Memory</p>
+                  <h3>Recent notes</h3>
+                </div>
+                <a class="text-link" href="#notes" data-view-link="notes">
+                  View all
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </a>
+              </header>
+              <div class="recent-notes" id="recent-notes"></div>
+              <div class="empty-inline" id="recent-empty" hidden>
+                <span class="empty-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z" stroke="currentColor" stroke-width="1.7"/>
+                    <path d="M5.5 11.5v.5a6.5 6.5 0 0 0 13 0v-.5M12 18.5V21M8.5 21h7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                <div>
+                  <strong>No notes yet</strong>
+                  <span>Record a thought or type a note to begin.</span>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="view-tasks" data-view="tasks" hidden>
+          <header class="section-head">
+            <div>
+              <p class="eyebrow">Your work</p>
+              <h2>Tasks</h2>
+              <p>Everything captured by voice or text, in one place.</p>
+            </div>
+            <div class="section-actions">
+              <div class="search-box">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="m16 16 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                <input id="task-search" type="search" placeholder="Search tasks" autocomplete="off" aria-label="Search tasks">
+              </div>
+              <button class="btn btn-primary" type="button" data-new-note>
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+                </svg>
+                New capture
+              </button>
+            </div>
+          </header>
+
+          <div class="filter-row" id="task-filters" role="group" aria-label="Filter tasks by status">
+            <button class="filter-chip is-active" type="button" data-task-filter="ALL">All <span data-filter-count="ALL">0</span></button>
+            <button class="filter-chip" type="button" data-task-filter="PENDING">Pending <span data-filter-count="PENDING">0</span></button>
+            <button class="filter-chip" type="button" data-task-filter="IN_PROGRESS">In progress <span data-filter-count="IN_PROGRESS">0</span></button>
+            <button class="filter-chip" type="button" data-task-filter="COMPLETED">Completed <span data-filter-count="COMPLETED">0</span></button>
+            <button class="filter-chip" type="button" data-task-filter="CANCELLED">Cancelled <span data-filter-count="CANCELLED">0</span></button>
+          </div>
+
+          <div class="task-grid" id="task-list"></div>
+          <div class="empty-state" id="task-empty" hidden>
+            <span class="empty-illustration" aria-hidden="true">
+              <svg viewBox="0 0 64 64" fill="none">
+                <rect x="12" y="10" width="40" height="44" rx="8" stroke="currentColor" stroke-width="2"/>
+                <path d="M22 24h20M22 32h14M22 40h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="48" cy="48" r="10" fill="var(--surface)" stroke="currentColor" stroke-width="2"/>
+                <path d="M48 43v10M43 48h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <h3 id="task-empty-title">No tasks here</h3>
+            <p id="task-empty-copy">Record a note like "Remind me to send the update tomorrow" and it will appear here.</p>
+            <button class="btn btn-primary" type="button" data-new-note>Create your first task</button>
+          </div>
+        </section>
+
+        <section class="view" id="view-notes" data-view="notes" hidden>
+          <header class="section-head">
+            <div>
+              <p class="eyebrow">Memory</p>
+              <h2>Notes</h2>
+              <p>Every transcript is kept, even when the AI can't act on it.</p>
+            </div>
+            <div class="segmented" id="note-source-filter" role="group" aria-label="Filter notes by source">
+              <button class="is-active" type="button" data-note-source="ALL">All</button>
+              <button type="button" data-note-source="VOICE">Voice</button>
+              <button type="button" data-note-source="TEXT">Text</button>
+            </div>
+          </header>
+
+          <div class="notes-timeline" id="notes-list"></div>
+          <div class="empty-state" id="notes-empty" hidden>
+            <span class="empty-illustration" aria-hidden="true">
+              <svg viewBox="0 0 64 64" fill="none">
+                <path d="M18 8h20l10 10v38H18a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4Z" stroke="currentColor" stroke-width="2"/>
+                <path d="M38 8v10h10M24 28h20M24 36h20M24 44h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <h3>No notes yet</h3>
+            <p>Your voice recordings and typed notes will build a searchable memory here.</p>
+            <button class="btn btn-primary" type="button" data-new-note>Capture a note</button>
+          </div>
+          <div class="load-more-wrap">
+            <button class="btn btn-ghost" id="notes-load-more" type="button" hidden>Load more notes</button>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <nav class="bottom-nav" aria-label="Mobile navigation">
+    <a class="bottom-link is-active" href="#overview" data-view-link="overview">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <rect x="3.5" y="3.5" width="7" height="7" rx="2" stroke="currentColor" stroke-width="1.7"/>
+        <rect x="13.5" y="3.5" width="7" height="7" rx="2" stroke="currentColor" stroke-width="1.7"/>
+        <rect x="3.5" y="13.5" width="7" height="7" rx="2" stroke="currentColor" stroke-width="1.7"/>
+        <rect x="13.5" y="13.5" width="7" height="7" rx="2" stroke="currentColor" stroke-width="1.7"/>
+      </svg>
+      <span>Overview</span>
+    </a>
+    <a class="bottom-link" href="#tasks" data-view-link="tasks">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="m4 7 2 2 4-4M4 17l2 2 4-4M13 8h7M13 18h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Tasks</span>
+    </a>
+    <a class="bottom-link" href="#notes" data-view-link="notes">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M6 3.5h8l4 4V20a.5.5 0 0 1-.5.5h-11A.5.5 0 0 1 6 20V4a.5.5 0 0 1 .5-.5Z" stroke="currentColor" stroke-width="1.7"/>
+        <path d="M14 3.5V8h4.5M9 12h6M9 15.5h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+      </svg>
+      <span>Notes</span>
+    </a>
+    <button class="bottom-capture" id="mobile-capture" type="button" aria-label="Start voice capture">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z" stroke="currentColor" stroke-width="1.8"/>
+        <path d="M5.5 11.5v.5a6.5 6.5 0 0 0 13 0v-.5M12 18.5V21M8.5 21h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </nav>
+
+  <div class="toast-stack" id="toast-stack" aria-live="polite" aria-atomic="false"></div>
+
+  <dialog class="dialog" id="query-dialog">
+    <div class="dialog-head">
+      <div>
+        <p class="eyebrow">Query result</p>
+        <h3 id="query-title">Tasks found</h3>
+      </div>
+      <button class="icon-btn dialog-close" type="button" data-close-dialog aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <p class="dialog-sub" id="query-sub"></p>
+    <div class="dialog-body" id="query-body"></div>
+    <div class="dialog-actions">
+      <button class="btn btn-ghost" type="button" data-close-dialog>Close</button>
+    </div>
+  </dialog>
+
+  <dialog class="dialog" id="delete-dialog">
+    <div class="dialog-head">
+      <div>
+        <p class="eyebrow">Delete task</p>
+        <h3>Remove this task?</h3>
+      </div>
+      <button class="icon-btn dialog-close" type="button" data-close-dialog aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <p class="dialog-sub" id="delete-copy">Linked notes will be kept.</p>
+    <div class="dialog-actions">
+      <button class="btn btn-ghost" type="button" data-close-dialog>Cancel</button>
+      <button class="btn btn-danger" id="confirm-delete" type="button">Delete task</button>
+    </div>
+  </dialog>
+
+  <dialog class="dialog dialog-wide" id="note-dialog">
+    <div class="dialog-head">
+      <div>
+        <p class="eyebrow" id="note-dialog-eyebrow">Note</p>
+        <h3 id="note-dialog-title">Transcript</h3>
+      </div>
+      <button class="icon-btn dialog-close" type="button" data-close-dialog aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="dialog-body" id="note-dialog-body"></div>
+    <div class="dialog-actions">
+      <button class="btn btn-ghost" type="button" data-close-dialog>Close</button>
+    </div>
+  </dialog>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>
