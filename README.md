@@ -10,25 +10,6 @@ self-hosted). Intent extraction uses **your own OpenAI-compatible
 dashboard is plain HTML/CSS/JavaScript served by FastAPI, so there is no Node build
 step and no second process.
 
-## Contents
-
-- [What it does](#what-it-does)
-- [Requirement coverage](#requirement-coverage)
-- [Prerequisites](#prerequisites)
-- [Quick start (under 10 minutes)](#quick-start-under-10-minutes)
-- [Configuration](#configuration)
-- [STT model download notes](#stt-model-download-notes)
-- [Using the dashboard](#using-the-dashboard)
-- [API reference](#api-reference)
-- [Intent behavior](#intent-behavior)
-- [Data model](#data-model)
-- [Tests and quality checks](#tests-and-quality-checks)
-- [Troubleshooting](#troubleshooting)
-- [Known limitations and gotchas](#known-limitations-and-gotchas)
-- [Project layout](#project-layout)
-- [Design note](#design-note)
-- [What is intentionally out of scope](#what-is-intentionally-out-of-scope)
-
 ## What it does
 
 ```text
