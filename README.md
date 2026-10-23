@@ -113,7 +113,7 @@ ffmpeg -version
 If `ffmpeg -version` fails, install ffmpeg before starting the API; otherwise audio
 uploads will fail with a clear `422 audio_processing_failed` response.
 
-## Quick start (under 10 minutes)
+## Quick start
 
 Run all commands from the repository root (the directory that contains
 `pyproject.toml`, `app/`, and `samples/`).
